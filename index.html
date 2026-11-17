@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS Video Downloader</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#10152d,#202c50);
+ color:white;
+ min-height:100vh;
+}
+header{
+ padding:22px 15px;
+ text-align:center;
+ background:#111a35;
+ border-bottom:1px solid #39466b;
+}
+.logo{font-size:30px;font-weight:bold;color:#50d6ff}
+.logo span{color:#fff}
+header p{color:#b9c8e8}
+.container{
+ max-width:550px;
+ margin:55px auto;
+ padding:25px;
+ text-align:center;
+}
+.card{
+ background:#202b49;
+ padding:25px;
+ border-radius:18px;
+ box-shadow:0 10px 35px #0005;
+}
+h1{font-size:27px}
+p{color:#c4d1e9;line-height:1.6}
+input{
+ width:100%;
+ padding:16px;
+ border-radius:10px;
+ border:1px solid #64749a;
+ background:#111a35;
+ color:white;
+ font-size:15px;
+ margin:15px 0;
+}
+button{
+ width:100%;
+ padding:15px;
+ border:0;
+ border-radius:10px;
+ background:#00b9e8;
+ color:#071a2b;
+ font-weight:bold;
+ font-size:17px;
+ cursor:pointer;
+}
+button:hover{background:#53d7fa}
+#preview{
+ width:100%;
+ margin-top:20px;
+ border-radius:12px;
+ display:none;
+}
+#status{margin-top:15px;color:#75e5ff}
+footer{
+ text-align:center;
+ padding:25px;
+ color:#aab7d0;
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">MS <span>Video Downloader</span></div>
+ <p>Simple • Fast • Easy</p>
+</header>
+
+<div class="container">
+ <div class="card">
+  <h1>Download Your Video</h1>
+  <p>Paste a direct video file link below.</p>
+
+  <input
+   type="url"
+   id="videoURL"
+   placeholder="Paste video URL here..."
+  >
+
+  <button onclick="previewVideo()">Preview Video</button>
+
+  <video id="preview" controls playsinline></video>
+
+  <p id="status">
+   Enter a direct MP4 or WebM video link.
+  </p>
+
+  <button onclick="downloadVideo()" style="margin-top:12px">
+   Download Video
+  </button>
+ </div>
+</div>
+
+<footer>
+ <p>© 2026 MS Video Downloader</p>
+ <p>Made by Mahipal Solanki</p>
+</footer>
+
+<script>
+function getURL(){
+ const value=document.getElementById("videoURL").value.trim();
+ try{
+  const url=new URL(value);
+  if(url.protocol!=="https:" && url.protocol!=="http:")
+   throw new Error();
+  return url.href;
+ }catch(e){
+  document.getElementById("status").innerText=
+   "Please enter a valid video URL.";
+  return null;
+ }
+}
+
+function previewVideo(){
+ const url=getURL();
+ if(!url)return;
+
+ const video=document.getElementById("preview");
+ video.src=url;
+ video.style.display="block";
+ video.load();
+
+ document.getElementById("status").innerText=
+ "Video preview loaded if the link is supported.";
+}
+
+function downloadVideo(){
+ const url=getURL();
+ if(!url)return;
+
+ const link=document.createElement("a");
+ link.href=url;
+ link.download="MS-Video";
+ link.target="_blank";
+ link.rel="noopener";
+ document.body.appendChild(link);
+ link.click();
+ link.remove();
+
+ document.getElementById("status").innerText=
+ "Download requested. Check your browser downloads.";
+}
+</script>
+
+</body>
+</html>
