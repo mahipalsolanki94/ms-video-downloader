@@ -15,32 +15,32 @@ body{
  min-height:100vh;
 }
 header{
- padding:22px 15px;
  text-align:center;
+ padding:30px 15px;
  background:#111a35;
  border-bottom:1px solid #39466b;
 }
 .logo{font-size:30px;font-weight:bold;color:#50d6ff}
-.logo span{color:#fff}
+.logo span{color:white}
 header p{color:#b9c8e8}
 .container{
  max-width:550px;
- margin:55px auto;
- padding:25px;
- text-align:center;
+ margin:45px auto;
+ padding:20px;
 }
 .card{
  background:#202b49;
- padding:25px;
- border-radius:18px;
+ padding:28px 22px;
+ border-radius:20px;
  box-shadow:0 10px 35px #0005;
+ text-align:center;
 }
 h1{font-size:27px}
 p{color:#c4d1e9;line-height:1.6}
 input{
  width:100%;
- padding:16px;
- border-radius:10px;
+ padding:17px;
+ border-radius:12px;
  border:1px solid #64749a;
  background:#111a35;
  color:white;
@@ -49,23 +49,26 @@ input{
 }
 button{
  width:100%;
- padding:15px;
+ padding:16px;
  border:0;
- border-radius:10px;
+ border-radius:12px;
  background:#00b9e8;
  color:#071a2b;
  font-weight:bold;
  font-size:17px;
  cursor:pointer;
+ margin-top:10px;
 }
-button:hover{background:#53d7fa}
+button:active{opacity:.8}
 #preview{
  width:100%;
  margin-top:20px;
  border-radius:12px;
  display:none;
+ background:#000;
 }
-#status{margin-top:15px;color:#75e5ff}
+#status{margin-top:18px;color:#75e5ff}
+.note{font-size:13px;color:#aab7d0}
 footer{
  text-align:center;
  padding:25px;
@@ -85,11 +88,9 @@ footer{
   <h1>Download Your Video</h1>
   <p>Paste a direct video file link below.</p>
 
-  <input
-   type="url"
-   id="videoURL"
+  <input type="url" id="videoURL"
    placeholder="Paste video URL here..."
-  >
+   autocomplete="url">
 
   <button onclick="previewVideo()">Preview Video</button>
 
@@ -99,15 +100,20 @@ footer{
    Enter a direct MP4 or WebM video link.
   </p>
 
-  <button onclick="downloadVideo()" style="margin-top:12px">
+  <button onclick="downloadVideo()">
    Download Video
   </button>
+
+  <p class="note">
+   Only download videos you own or have permission to download.
+  </p>
  </div>
 </div>
 
 <footer>
  <p>© 2026 MS Video Downloader</p>
  <p>Made by Mahipal Solanki</p>
+ <p>Simple • Fast • Secure</p>
 </footer>
 
 <script>
@@ -135,7 +141,15 @@ function previewVideo(){
  video.load();
 
  document.getElementById("status").innerText=
- "Video preview loaded if the link is supported.";
+ "Loading video preview...";
+ video.onloadedmetadata=()=>{
+  document.getElementById("status").innerText=
+  "Video preview ready!";
+ };
+ video.onerror=()=>{
+  document.getElementById("status").innerText=
+  "Video could not be previewed. Check the direct video link.";
+ };
 }
 
 function downloadVideo(){
