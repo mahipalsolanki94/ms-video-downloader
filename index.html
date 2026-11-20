@@ -3,139 +3,110 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MS Video Downloader</title>
-
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:linear-gradient(135deg,#10172a,#182c48);
-  color:white;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
+ margin:0;
+ min-height:100vh;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ padding:20px;
+ background:#101827;
+ color:white;
+ font-family:Arial,sans-serif;
 }
 .container{
-  width:100%;
-  max-width:450px;
-  background:#202e45;
-  padding:28px 20px;
-  border-radius:20px;
-  text-align:center;
-  box-shadow:0 10px 35px #0006;
+ width:100%;
+ max-width:450px;
+ background:#1e293b;
+ padding:25px;
+ border-radius:18px;
+ text-align:center;
 }
-.logo{
-  font-size:35px;
-  font-weight:bold;
-  color:#38bdf8;
-}
+.logo{font-size:38px;color:#38bdf8;font-weight:bold}
 h1{font-size:25px}
-p{color:#cbd5e1}
 input{
-  width:100%;
-  padding:16px;
-  margin:15px 0;
-  border:2px solid #475569;
-  border-radius:10px;
-  background:#111c30;
-  color:white;
-  font-size:15px;
+ width:100%;
+ padding:15px;
+ margin:15px 0;
+ border:1px solid #64748b;
+ border-radius:9px;
+ background:#0f172a;
+ color:white;
+ font-size:15px;
 }
 button{
-  width:100%;
-  padding:16px;
-  border:0;
-  border-radius:10px;
-  background:#16a34a;
-  color:white;
-  font-size:18px;
-  font-weight:bold;
-  cursor:pointer;
+ width:100%;
+ padding:15px;
+ border:0;
+ border-radius:9px;
+ background:#16a34a;
+ color:white;
+ font-size:18px;
+ font-weight:bold;
+ cursor:pointer;
 }
 button:disabled{opacity:.6}
-#message{
-  margin-top:18px;
-  line-height:1.6;
-  overflow-wrap:anywhere;
-}
-video{
-  width:100%;
-  margin-top:15px;
-  border-radius:10px;
-}
-.footer{
-  margin-top:25px;
-  font-size:12px;
-  color:#94a3b8;
-}
+#message{margin-top:18px;overflow-wrap:anywhere}
+video{width:100%;margin-top:15px}
+small{color:#cbd5e1}
 </style>
 </head>
-
 <body>
 <div class="container">
+ <div class="logo">MS</div>
+ <h1>MS Video Downloader</h1>
+ <p>Paste your direct MP4 video link</p>
 
-<div class="logo">MS</div>
-<h1>MS Video Downloader</h1>
-<p>Paste your direct MP4 video link below</p>
+ <input id="videoURL" type="url"
+ placeholder="Paste video link here">
 
-<input
- id="videoURL"
- type="url"
- placeholder="Paste video link here"
->
+ <button id="downloadBtn" type="button">
+ Download Video
+ </button>
 
-<button id="downloadBtn" onclick="downloadVideo()">
-Download Video
-</button>
-
-<div id="message"></div>
-
-<video id="preview" controls hidden></video>
-
-<div class="footer">
-© 2026 MS Video Downloader
-</div>
-
+ <p id="message" role="status"></p>
+ <video id="preview" controls hidden></video>
+ <small>Supports direct MP4 links when the server allows downloading.</small>
 </div>
 
 <script>
-async function downloadVideo(){
+const input=document.getElementById("videoURL");
+const button=document.getElementById("downloadBtn");
+const message=document.getElementById("message");
+const preview=document.getElementById("preview");
 
- const input=document.getElementById("videoURL");
- const message=document.getElementById("message");
- const button=document.getElementById("downloadBtn");
- const preview=document.getElementById("preview");
+button.addEventListener("click", async function(){
 
  const url=input.value.trim();
+ message.textContent="";
+ preview.hidden=true;
 
  if(!url){
-  message.textContent="Please paste a video link.";
+  message.textContent="Please paste a video link first.";
   return;
  }
 
  let parsed;
-
  try{
   parsed=new URL(url);
-  if(!["https:","http:"].includes(parsed.protocol))
+  if(!["http:","https:"].includes(parsed.protocol))
    throw new Error();
- }catch{
-  message.textContent="Invalid video link!";
+ }catch(e){
+  message.textContent="Please enter a valid video URL.";
   return;
  }
 
- if(!/\.mp4($|[?#])/i.test(parsed.pathname+parsed.search)){
-  message.textContent=
-  "This link is not a direct MP4 file. Social media links need an authorized video source.";
+ if(!/\.mp4$/i.test(parsed.pathname)){
+  message.textContent="Please enter a direct MP4 file link.";
   return;
  }
 
  button.disabled=true;
- message.textContent="Please wait...";
+ message.textContent="Checking video...";
 
  try{
   const response=await fetch(url);
@@ -144,13 +115,12 @@ async function downloadVideo(){
 
   const blob=await response.blob();
 
-  if(!blob.type.includes("video") &&
-     !url.toLowerCase().includes(".mp4")){
-    throw new Error("Not a video file");
+  if(!blob.type.startsWith("video/") &&
+     blob.type!=="application/octet-stream"){
+   throw new Error("Not a video file");
   }
 
   const objectURL=URL.createObjectURL(blob);
-
   preview.src=objectURL;
   preview.hidden=false;
 
@@ -163,16 +133,13 @@ async function downloadVideo(){
 
   message.textContent="Download started!";
 
-  setTimeout(()=>URL.revokeObjectURL(objectURL),60000);
-
- }catch(error){
+ }catch(e){
   message.textContent=
-  "Download failed. Server may block downloading. Try a direct MP4 link from a server that allows access.";
+  "Download failed. The video server may block browser access (CORS).";
  }finally{
   button.disabled=false;
  }
-}
+});
 </script>
-
 </body>
 </html>
